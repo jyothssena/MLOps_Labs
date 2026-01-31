@@ -1,6 +1,9 @@
 # test_password_checker.py
 import unittest
-from password_checker import check_password_strength
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+from password_check import check_password_strength
 
 class TestPasswordStrengthChecker(unittest.TestCase):
     
@@ -47,10 +50,10 @@ class TestPasswordStrengthChecker(unittest.TestCase):
     
     def test_minimum_length_boundary(self):
         """Test exactly at length boundary"""
-        result = check_password_strength("Abcdef1!")
+        result = check_password_strength("Abcde1!")
         self.assertEqual(result["score"], 4)  # 7 chars, missing length
         
-        result = check_password_strength("Abcdefg1!")
+        result = check_password_strength("Abcdef1!")
         self.assertEqual(result["score"], 5)  # 9 chars, meets all
     
     def test_all_special_characters(self):

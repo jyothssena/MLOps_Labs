@@ -1,3 +1,4 @@
+# src/password_check.py
 def check_password_strength(password):
     score = 0
     feedback = []
@@ -27,12 +28,20 @@ def check_password_strength(password):
     else:
         feedback.append("Add special characters")
     
-    strength = ["Very Weak", "Weak", "Fair", "Good", "Strong"][score - 1] if score > 0 else "Very Weak"
+    strength_levels = ["Very Weak", "Weak", "Fair", "Good", "Strong"]
+    strength = strength_levels[score - 1] if score > 0 else "Very Weak"
     
-    print(f"\nPassword: {password}")
-    print(f"Strength: {strength} ({score}/5)")
-    if feedback:
-        print("Suggestions:", ", ".join(feedback))
+    return {
+        "score": score,
+        "strength": strength,
+        "feedback": feedback
+    }
 
-password = input("Enter a password to check: ")
-check_password_strength(password)
+# This code only runs when you execute the file directly, NOT when importing
+if __name__ == "__main__":
+    password = input("Enter a password to check: ")
+    result = check_password_strength(password)
+    print(f"\nPassword: {password}")
+    print(f"Strength: {result['strength']} ({result['score']}/5)")
+    if result['feedback']:
+        print("Suggestions:", ", ".join(result['feedback']))

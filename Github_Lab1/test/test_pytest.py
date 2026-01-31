@@ -1,45 +1,13 @@
-# password_checker.py
-def check_password_strength(password):
-    score = 0
-    feedback = []
-    
-    if len(password) >= 8:
-        score += 1
-    else:
-        feedback.append("Too short (need at least 8 characters)")
-    
-    if any(c.isupper() for c in password):
-        score += 1
-    else:
-        feedback.append("Add uppercase letters")
-    
-    if any(c.islower() for c in password):
-        score += 1
-    else:
-        feedback.append("Add lowercase letters")
-    
-    if any(c.isdigit() for c in password):
-        score += 1
-    else:
-        feedback.append("Add numbers")
-    
-    if any(c in "!@#$%^&*" for c in password):
-        score += 1
-    else:
-        feedback.append("Add special characters")
-    
-    strength_levels = ["Very Weak", "Weak", "Fair", "Good", "Strong"]
-    strength = strength_levels[score - 1] if score > 0 else "Very Weak"
-    
-    return {
-        "score": score,
-        "strength": strength,
-        "feedback": feedback
-    }
+
 
 # test_password_checker.py
 import pytest
-from password_checker import check_password_strength
+import sys
+from pathlib import Path
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+from password_check import check_password_strength
 
 def test_very_weak_password():
     result = check_password_strength("abc")
@@ -77,10 +45,12 @@ def test_empty_password():
     assert len(result["feedback"]) == 5
 
 def test_minimum_length_boundary():
-    result = check_password_strength("Abcdef1!")
+    # 7 characters - should miss length requirement
+    result = check_password_strength("Abcde1!")
     assert result["score"] == 4  # Missing length requirement
     
-    result = check_password_strength("Abcdefg1!")
+    # 8 characters - should meet all requirements
+    result = check_password_strength("Abcdef1!")
     assert result["score"] == 5  # Meets all requirements
 
 def test_all_special_characters():
