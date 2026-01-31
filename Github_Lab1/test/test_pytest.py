@@ -1,31 +1,106 @@
+# password_checker.py
+def check_password_strength(password):
+    score = 0
+    feedback = []
+    
+    if len(password) >= 8:
+        score += 1
+    else:
+        feedback.append("Too short (need at least 8 characters)")
+    
+    if any(c.isupper() for c in password):
+        score += 1
+    else:
+        feedback.append("Add uppercase letters")
+    
+    if any(c.islower() for c in password):
+        score += 1
+    else:
+        feedback.append("Add lowercase letters")
+    
+    if any(c.isdigit() for c in password):
+        score += 1
+    else:
+        feedback.append("Add numbers")
+    
+    if any(c in "!@#$%^&*" for c in password):
+        score += 1
+    else:
+        feedback.append("Add special characters")
+    
+    strength_levels = ["Very Weak", "Weak", "Fair", "Good", "Strong"]
+    strength = strength_levels[score - 1] if score > 0 else "Very Weak"
+    
+    return {
+        "score": score,
+        "strength": strength,
+        "feedback": feedback
+    }
+
+# test_password_checker.py
 import pytest
 from password_checker import check_password_strength
 
 def test_very_weak_password():
-    """Test password with no criteria met"""
-    # This would need to capture output or refactor function to return values
-    pass
+    result = check_password_strength("abc")
+    assert result["score"] == 1
+    assert result["strength"] == "Very Weak"
+    assert len(result["feedback"]) == 4
 
-def test_weak_password_only_lowercase():
-    """Test password with only lowercase letters"""
-    pass
+def test_weak_password():
+    result = check_password_strength("abcdefgh")
+    assert result["score"] == 2
+    assert result["strength"] == "Weak"
+    assert "Add uppercase letters" in result["feedback"]
 
-def test_fair_password_with_upper_lower_short():
-    """Test password with upper and lower but too short"""
-    pass
+def test_fair_password():
+    result = check_password_strength("Abcdefgh")
+    assert result["score"] == 3
+    assert result["strength"] == "Fair"
 
-def test_good_password_missing_special():
-    """Test password missing only special characters"""
-    pass
+def test_good_password():
+    result = check_password_strength("Abcdefg1")
+    assert result["score"] == 4
+    assert result["strength"] == "Good"
+    assert "Add special characters" in result["feedback"]
 
-def test_strong_password_all_criteria():
-    """Test password meeting all criteria"""
-    pass
-
-def test_minimum_length():
-    """Test exactly 8 characters"""
-    pass
+def test_strong_password():
+    result = check_password_strength("Abcdefg1!")
+    assert result["score"] == 5
+    assert result["strength"] == "Strong"
+    assert len(result["feedback"]) == 0
 
 def test_empty_password():
-    """Test empty string"""
-    pass
+    result = check_password_strength("")
+    assert result["score"] == 0
+    assert result["strength"] == "Very Weak"
+    assert len(result["feedback"]) == 5
+
+def test_minimum_length_boundary():
+    result = check_password_strength("Abcdef1!")
+    assert result["score"] == 4  # Missing length requirement
+    
+    result = check_password_strength("Abcdefg1!")
+    assert result["score"] == 5  # Meets all requirements
+
+def test_all_special_characters():
+    result = check_password_strength("!@#$%^&*Aa1")
+    assert result["score"] == 5
+    assert result["strength"] == "Strong"
+
+def test_numbers_only():
+    result = check_password_strength("12345678")
+    assert result["score"] == 2
+    assert "Add uppercase letters" in result["feedback"]
+    assert "Add lowercase letters" in result["feedback"]
+
+@pytest.mark.parametrize("password,expected_score", [
+    ("a", 1),
+    ("aB", 2),
+    ("aB1", 3),
+    ("aB1!", 4),
+    ("aB1!aaaa", 5),
+])
+def test_progressive_strength(password, expected_score):
+    result = check_password_strength(password)
+    assert result["score"] == expected_score
