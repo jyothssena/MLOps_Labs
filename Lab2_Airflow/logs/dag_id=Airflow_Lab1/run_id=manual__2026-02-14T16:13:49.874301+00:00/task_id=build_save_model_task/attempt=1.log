@@ -1,0 +1,58 @@
+[2026-02-14T16:13:59.897+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2026-02-14T16:13:59.910+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: Airflow_Lab1.build_save_model_task manual__2026-02-14T16:13:49.874301+00:00 [queued]>
+[2026-02-14T16:13:59.915+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: Airflow_Lab1.build_save_model_task manual__2026-02-14T16:13:49.874301+00:00 [queued]>
+[2026-02-14T16:13:59.915+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 1
+[2026-02-14T16:13:59.923+0000] {taskinstance.py:2330} INFO - Executing <Task(PythonOperator): build_save_model_task> on 2026-02-14 16:13:49.874301+00:00
+[2026-02-14T16:13:59.940+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:61: DeprecationWarning: This process (pid=802) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  pid = os.fork()
+
+[2026-02-14T16:13:59.941+0000] {standard_task_runner.py:63} INFO - Started process 812 to run task
+[2026-02-14T16:13:59.941+0000] {standard_task_runner.py:90} INFO - Running: ['***', 'tasks', 'run', 'Airflow_Lab1', 'build_save_model_task', 'manual__2026-02-14T16:13:49.874301+00:00', '--job-id', '26', '--raw', '--subdir', 'DAGS_FOLDER/***.py', '--cfg-path', '/tmp/tmpbct0jwao']
+[2026-02-14T16:13:59.944+0000] {standard_task_runner.py:91} INFO - Job 26: Subtask build_save_model_task
+[2026-02-14T16:13:59.978+0000] {task_command.py:426} INFO - Running <TaskInstance: Airflow_Lab1.build_save_model_task manual__2026-02-14T16:13:49.874301+00:00 [running]> on host e3ce6307c203
+[2026-02-14T16:14:00.055+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='your_name' AIRFLOW_CTX_DAG_ID='Airflow_Lab1' AIRFLOW_CTX_TASK_ID='build_save_model_task' AIRFLOW_CTX_EXECUTION_DATE='2026-02-14T16:13:49.874301+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2026-02-14T16:13:49.874301+00:00'
+[2026-02-14T16:14:00.056+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2026-02-14T16:14:00.077+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2026-02-14T16:14:00.078+0000] {taskinstance.py:2905} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 465, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 432, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 235, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 252, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/src/lab.py", line 88, in build_save_model
+    labels = dbscan.fit_predict(df)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/cluster/_dbscan.py", line 505, in fit_predict
+    self.fit(X, sample_weight=sample_weight)
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/base.py", line 1336, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/cluster/_dbscan.py", line 422, in fit
+    X = validate_data(self, X, accept_sparse="csr")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/validation.py", line 2902, in validate_data
+    out = check_array(X, input_name="X", **check_params)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/sklearn/utils/validation.py", line 1060, in check_array
+    raise ValueError(msg)
+ValueError: Expected 2D array, got 1D array instead:
+array=[-0.46210065 -0.24549813 -0.57142857 -0.00747571 -0.3579583 ].
+Reshape your data either using array.reshape(-1, 1) if your data has a single feature or array.reshape(1, -1) if it contains a single sample.
+[2026-02-14T16:14:00.091+0000] {taskinstance.py:1206} INFO - Marking task as FAILED. dag_id=Airflow_Lab1, task_id=build_save_model_task, run_id=manual__2026-02-14T16:13:49.874301+00:00, execution_date=20260214T161349, start_date=20260214T161359, end_date=20260214T161400
+[2026-02-14T16:14:00.098+0000] {standard_task_runner.py:110} ERROR - Failed to execute job 26 for task build_save_model_task (Expected 2D array, got 1D array instead:
+array=[-0.46210065 -0.24549813 -0.57142857 -0.00747571 -0.3579583 ].
+Reshape your data either using array.reshape(-1, 1) if your data has a single feature or array.reshape(1, -1) if it contains a single sample.; 812)
+[2026-02-14T16:14:00.123+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 1
+[2026-02-14T16:14:00.141+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2026-02-14T16:14:00.143+0000] {local_task_job_runner.py:222} INFO - ::endgroup::
