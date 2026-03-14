@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Iris | AI Classifier</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #bd00ff;
+            --bg-dark: #0f172a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: radial-gradient(circle at top left, #1a1a2e, #16213e, #0f172a);
+            color: #e2e8f0;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -10%; left: -10%;
+            width: 40%; height: 40%;
+            background: radial-gradient(circle, var(--secondary), transparent 70%);
+            opacity: 0.2;
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 10s infinite alternate;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -10%; right: -10%;
+            width: 40%; height: 40%;
+            background: radial-gradient(circle, var(--primary), transparent 70%);
+            opacity: 0.2;
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 10s infinite alternate-reverse;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            width: 90%;
+            max-width: 450px;
+            position: relative;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .input-group { margin-bottom: 1.5rem; position: relative; }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0,242,255,0.2);
+            background: rgba(0,0,0,0.4);
+        }
+
+        button.submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        button.submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,242,255,0.3);
+        }
+
+        .result-container {
+            margin-top: 20px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            display: none;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .result-container.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .prediction-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(0,242,255,0.2);
+        }
+
+        /* ── Confidence Bar ── */
+        .confidence-section {
+            margin: 16px 0;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .confidence-label span:last-child {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .confidence-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 99px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+
+        .confidence-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            box-shadow: 0 0 10px rgba(0,242,255,0.5);
+            transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* All 3 class bars */
+        .all-classes {
+            margin-top: 14px;
+            text-align: left;
+        }
+
+        .class-bar-row {
+            margin-bottom: 10px;
+        }
+
+        .class-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .class-bar-label .pct {
+            font-family: 'Orbitron', sans-serif;
+            color: #e2e8f0;
+        }
+
+        .class-track {
+            width: 100%;
+            height: 5px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .class-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 99px;
+            transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .fill-setosa    { background: linear-gradient(90deg, #ff6ec7, #ff3cac); box-shadow: 0 0 6px rgba(255,60,172,0.5); }
+        .fill-versicolor{ background: linear-gradient(90deg, #00f2ff, #0080ff); box-shadow: 0 0 6px rgba(0,242,255,0.5); }
+        .fill-virginica { background: linear-gradient(90deg, #bd00ff, #7b00d4); box-shadow: 0 0 6px rgba(189,0,255,0.5); }
+
+        /* ── Flower Card with Glow & Particles ── */
+        .flower-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 10px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        /* animated glow ring around image */
+        .flower-card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 18px;
+            background: conic-gradient(var(--primary), var(--secondary), var(--primary));
+            z-index: 0;
+            animation: spin-glow 3s linear infinite;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .flower-card.glowing::before { opacity: 1; }
+
+        .flower-inner {
+            position: relative;
+            z-index: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0f172a;
+        }
+
+        .flower-image {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* particle canvas sits over the image */
+        #particleCanvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            border-radius: 12px;
+        }
+
+        @keyframes spin-glow {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes float {
+            0%   { transform: translate(0,0); }
+            100% { transform: translate(20px,20px); }
+        }
+
+        .spinner {
+            display: none;
+            width: 24px; height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin-glow 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="glass-card">
+        <h1>NEURAL IRIS</h1>
+        <form id="predictionForm">
+            <div class="input-group">
+                <label for="sepal_length">Sepal Length</label>
+                <input type="number" id="sepal_length" step="0.01" placeholder="0.00" required>
+            </div>
+            <div class="input-group">
+                <label for="sepal_width">Sepal Width</label>
+                <input type="number" id="sepal_width" step="0.01" placeholder="0.00" required>
+            </div>
+            <div class="input-group">
+                <label for="petal_length">Petal Length</label>
+                <input type="number" id="petal_length" step="0.01" placeholder="0.00" required>
+            </div>
+            <div class="input-group">
+                <label for="petal_width">Petal Width</label>
+                <input type="number" id="petal_width" step="0.01" placeholder="0.00" required>
+            </div>
+            <button type="submit" class="submit-btn">
+                <span id="btnText">ANALYZE</span>
+                <div class="spinner" id="btnSpinner"></div>
+            </button>
+        </form>
+    </div>
+
+    <div id="resultArea" class="glass-card result-container">
+        <div class="prediction-badge" id="confidenceBadge">CONFIDENCE: —</div>
+        <h2 id="predictedClass" style="margin:10px 0;color:#fff;font-family:'Orbitron',sans-serif;"></h2>
+
+        <!-- Main confidence bar -->
+        <div class="confidence-section">
+            <div class="confidence-label">
+                <span>Confidence</span>
+                <span id="confidencePct">0%</span>
+            </div>
+            <div class="confidence-track">
+                <div class="confidence-fill" id="confidenceFill"></div>
+            </div>
+        </div>
+
+        <!-- Per-class breakdown -->
+        <div class="all-classes">
+            <div class="class-bar-row">
+                <div class="class-bar-label"><span>SETOSA</span><span class="pct" id="pct-setosa">0%</span></div>
+                <div class="class-track"><div class="class-fill fill-setosa" id="bar-setosa"></div></div>
+            </div>
+            <div class="class-bar-row">
+                <div class="class-bar-label"><span>VERSICOLOR</span><span class="pct" id="pct-versicolor">0%</span></div>
+                <div class="class-track"><div class="class-fill fill-versicolor" id="bar-versicolor"></div></div>
+            </div>
+            <div class="class-bar-row">
+                <div class="class-bar-label"><span>VIRGINICA</span><span class="pct" id="pct-virginica">0%</span></div>
+                <div class="class-track"><div class="class-fill fill-virginica" id="bar-virginica"></div></div>
+            </div>
+        </div>
+
+        <!-- Flower image with glow + particles -->
+        <div class="flower-card" id="flowerCard">
+            <div class="flower-inner">
+                <img src="" id="flowerImage" class="flower-image" alt="Iris Prediction"
+                    data-setosa="{{ url_for('static', filename='setosa.jpeg') }}"
+                    data-versicolor="{{ url_for('static', filename='versicolor.jpeg') }}"
+                    data-virginica="{{ url_for('static', filename='virginica.jpeg') }}" />
+                <canvas id="particleCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── Particle System ──
+const canvas = document.getElementById('particleCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [], animFrame, particleColor = '#00f2ff';
+
+function resizeCanvas() {
+    const inner = canvas.parentElement;
+    canvas.width  = inner.offsetWidth;
+    canvas.height = inner.offsetHeight;
+}
+
+function spawnParticle() {
+    return {
+        x: Math.random() * canvas.width,
+        y: canvas.height + 5,
+        vx: (Math.random() - 0.5) * 1.2,
+        vy: -(Math.random() * 1.5 + 0.5),
+        radius: Math.random() * 3 + 1,
+        alpha: 1,
+        decay: Math.random() * 0.012 + 0.006
+    };
+}
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (particles.length < 40) particles.push(spawnParticle());
+    particles = particles.filter(p => p.alpha > 0);
+    particles.forEach(p => {
+        p.x  += p.vx;
+        p.y  += p.vy;
+        p.alpha -= p.decay;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = particleColor + Math.floor(p.alpha * 255).toString(16).padStart(2,'0');
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = particleColor;
+        ctx.fill();
+    });
+    animFrame = requestAnimationFrame(animateParticles);
+}
+
+function startParticles(color) {
+    particleColor = color;
+    particles = [];
+    cancelAnimationFrame(animFrame);
+    resizeCanvas();
+    animateParticles();
+}
+
+// color per species
+const speciesColor = { Setosa: '#ff3cac', Versicolor: '#00f2ff', Virginica: '#bd00ff' };
+
+// ── Form Submit ──
+$(document).ready(function() {
+    $('#predictionForm').on('submit', function(e) {
+        e.preventDefault();
+
+        var $btn = $('.submit-btn'), $text = $('#btnText'), $spinner = $('#btnSpinner');
+        $text.hide(); $spinner.show(); $btn.css('opacity','0.7');
+
+        var formData = {
+            sepal_length: $('#sepal_length').val(),
+            sepal_width:  $('#sepal_width').val(),
+            petal_length: $('#petal_length').val(),
+            petal_width:  $('#petal_width').val()
+        };
+
+        $.ajax({
+            type: 'POST', url: '/predict',
+            data: formData, dataType: 'json'
+        }).done(function(data) {
+            var cls  = data.predicted_class;           // e.g. "Setosa"
+            var prob = data.probabilities || null;      // expects {Setosa:0.97, Versicolor:0.02, Virginica:0.01}
+
+            // predicted class text
+            $('#predictedClass').text(cls.toUpperCase());
+
+            // confidence badge + main bar
+            var conf = prob ? Math.round(prob[cls] * 100) : null;
+            if (conf !== null) {
+                $('#confidenceBadge').text('CONFIDENCE: ' + conf + '%');
+                $('#confidencePct').text(conf + '%');
+                setTimeout(() => { $('#confidenceFill').css('width', conf + '%'); }, 50);
+            } else {
+                $('#confidenceBadge').text('PREDICTION COMPLETE');
+                $('#confidencePct').text('—');
+            }
+
+            // per-class bars
+            ['Setosa','Versicolor','Virginica'].forEach(function(c) {
+                var pct = prob ? Math.round(prob[c] * 100) : 0;
+                $('#pct-' + c.toLowerCase()).text(pct + '%');
+                setTimeout(() => { $('#bar-' + c.toLowerCase()).css('width', pct + '%'); }, 50);
+            });
+
+            // flower image
+            var imgMap = { Setosa: 'setosa', Versicolor: 'versicolor', Virginica: 'virginica' };
+            $('#flowerImage').attr('src', $('#flowerImage').data(imgMap[cls]));
+
+            // glow ring
+            $('#flowerCard').addClass('glowing');
+
+            // particles
+            startParticles(speciesColor[cls] || '#00f2ff');
+
+            // show result
+            var $result = $('#resultArea');
+            $result.css('display','block');
+            setTimeout(() => { $result.addClass('active'); }, 10);
+
+            $text.show(); $spinner.hide(); $btn.css('opacity','1');
+
+        }).fail(function() {
+            alert('SYSTEM ERROR: Neural Link Disconnected.');
+            $text.show(); $spinner.hide(); $btn.css('opacity','1');
+        });
+    });
+});
+</script>
+</body>
+</html>
