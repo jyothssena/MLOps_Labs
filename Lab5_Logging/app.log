@@ -1,0 +1,41 @@
+An error occurred while dividing by zero
+Traceback (most recent call last):
+  File "/Users/jyothssena/MLOps_Labs/Lab5_Logging/logging_guide.py", line 48, in <module>
+    result = 10 / 0
+             ~~~^~~
+ZeroDivisionError: division by zero
+2026-03-28 11:11:46,042 - custom_levels - VERBOSE - This is a verbose message — lower than DEBUG
+2026-03-28 11:11:46,042 - custom_levels - DEBUG - This is a debug message
+2026-03-28 11:11:46,042 - custom_levels - INFO - This is an info message
+2026-03-28 11:11:46,042 - custom_levels - AUDIT - AUDIT: User 'admin' logged in successfully
+2026-03-28 11:11:46,042 - custom_levels - WARNING - This is a warning message
+2026-03-28 11:11:46,042 - custom_levels - ERROR - This is an error message
+2026-03-28 11:11:46,042 - custom_levels - CRITICAL - This is a critical message
+2026-03-28 11:11:46,042 - filtered_logger - INFO - User logged in
+2026-03-28 11:11:46,042 - filtered_logger - INFO - Payment of $200 received
+2026-03-28 11:11:46,042 - filtered_logger - WARNING - Payment gateway timeout
+2026-03-28 11:11:46,042 - filtered_logger - ERROR - Failed to process refund for order 99
+2026-03-28 11:11:46,042 - error_examples - ERROR - ValueError: invalid literal for int()
+Traceback (most recent call last):
+  File "/Users/jyothssena/MLOps_Labs/Lab5_Logging/logging_guide.py", line 142, in <module>
+    number = int("not_a_number")  # Can't convert a string to int
+             ^^^^^^^^^^^^^^^^^^^
+ValueError: invalid literal for int() with base 10: 'not_a_number'
+2026-03-28 11:11:46,042 - error_examples - ERROR - FileNotFoundError: file does not exist
+Traceback (most recent call last):
+  File "/Users/jyothssena/MLOps_Labs/Lab5_Logging/logging_guide.py", line 148, in <module>
+    with open("nonexistent_file.txt", "r") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'nonexistent_file.txt'
+2026-03-28 11:11:46,043 - error_examples - ERROR - TypeError: unsupported operand types
+Traceback (most recent call last):
+  File "/Users/jyothssena/MLOps_Labs/Lab5_Logging/logging_guide.py", line 155, in <module>
+    result = "hello" + 5  # Can't add a string and an integer
+             ~~~~~~~~^~~
+TypeError: can only concatenate str (not "int") to str
+2026-03-28 11:11:46,043 - error_examples - ERROR - KeyError: key not found in dictionary
+Traceback (most recent call last):
+  File "/Users/jyothssena/MLOps_Labs/Lab5_Logging/logging_guide.py", line 162, in <module>
+    print(data["email"])  # Key doesn't exist in the dictionary
+          ~~~~^^^^^^^^^
+KeyError: 'email'
